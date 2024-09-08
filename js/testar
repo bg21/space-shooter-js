@@ -1,0 +1,333 @@
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 800;
+canvas.height = 600;
+
+// Carrega as imagens da nave do jogador e dos inimigos
+const shipImage = new Image();
+shipImage.src = 'imgs/player.png';
+
+const enemyImages = [];
+for (let i = 1; i <= 10; i++) {
+    const img = new Image();
+    img.src = `imgs/enemy${i}.png`;
+    enemyImages.push(img);
+}
+
+// Carrega as imagens de explosão
+const explosionImage = new Image();
+explosionImage.src = 'imgs/explosion.png'; // Imagem para explosão
+
+let ship = {
+    x: canvas.width / 2 - 20,
+    y: canvas.height - 60,
+    width: 40,
+    height: 40,
+    speed: 5,
+    movingLeft: false,
+    movingRight: false,
+    movingUp: false,
+    movingDown: false,
+    angle: 0,
+    health: 100,
+    exploded: false // Novo atributo para controlar a explosão
+};
+
+function drawHealthBar() {
+    const barWidth = 100; // Largura da barra de vida
+    const barHeight = 20; // Altura da barra de vida
+    const x = 10; // Posição X da barra
+    const y = canvas.height - 30; // Posição Y da barra
+
+    // Fundo da barra
+    ctx.fillStyle = 'gray';
+    ctx.fillRect(x, y, barWidth, barHeight);
+
+    // Barra de vida
+    ctx.fillStyle = 'green';
+    ctx.fillRect(x, y, (ship.health / 100) * barWidth, barHeight);
+
+    // Texto da barra de vida
+    ctx.fillStyle = 'white';
+    ctx.font = '14px Arial';
+    ctx.fillText(`HP: ${ship.health}`, x + 2, y + 15);
+}
+
+let bullets = [];
+let superBullets = [];
+let enemies = [];
+let score = 0;
+let level = 1;
+let gameOver = false;
+let enemySpeed = 2;
+let gameStarted = false;
+let countdown = 3;
+
+let enemiesDestroyed = 0;
+let superShotAvailable = false;
+const enemiesNeededForSuperShot = 3;
+
+shipImage.onload = function() {
+    let imagesLoaded = 0;
+    enemyImages.forEach(image => {
+        image.onload = () => {
+            imagesLoaded++;
+            if (imagesLoaded === enemyImages.length) {
+                startGame();
+            }
+        };
+    });
+};
+
+shipImage.onerror = function() {
+    console.error('Erro ao carregar a imagem da nave. Verifique o caminho da imagem.');
+};
+
+enemyImages.forEach(image => {
+    image.onerror = function() {
+        console.error('Erro ao carregar a imagem dos inimigos. Verifique o caminho das imagens.');
+    };
+});
+
+explosionImage.onerror = function() {
+    console.error('Erro ao carregar a imagem da explosão. Verifique o caminho da imagem.');
+};
+
+function drawShip() {
+    if (ship.exploded) {
+        ctx.drawImage(explosionImage, ship.x, ship.y, ship.width, ship.height);
+        return;
+    }
+
+    ctx.save();
+    ctx.translate(ship.x + ship.width / 2, ship.y + ship.height / 2);
+    ctx.rotate(ship.angle);
+    ctx.drawImage(shipImage, -ship.width / 2, -ship.height / 2, ship.width, ship.height);
+    ctx.restore();
+}
+
+function drawBullets() {
+    ctx.fillStyle = 'red';
+    bullets.forEach((bullet) => {
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+        bullet.y -= bullet.speed;
+    });
+    bullets = bullets.filter(bullet => bullet.y > 0);
+}
+
+function drawSuperBullets() {
+    ctx.fillStyle = 'blue';
+    superBullets.forEach((bullet) => {
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+        bullet.y -= bullet.speed;
+    });
+    superBullets = superBullets.filter(bullet => bullet.y > 0);
+}
+
+function drawEnemies() {
+    enemies.forEach((enemy) => {
+        if (enemy.exploded) {
+            ctx.drawImage(explosionImage, enemy.x, enemy.y, enemy.width, enemy.height);
+            return;
+        }
+
+        const img = enemyImages[enemy.imageIndex];
+        ctx.drawImage(img, enemy.x, enemy.y, enemy.width, enemy.height);
+        enemy.y += enemy.speed;
+    });
+    enemies = enemies.filter(enemy => enemy.y < canvas.height);
+}
+
+function drawScoreAndLevel() {
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Score: ${score}`, 10, 30);
+    ctx.fillText(`Level: ${level}`, 10, 60);
+}
+
+function detectCollisions() {
+    let collisionDetected = false;
+
+    // Verifica colisões entre balas e inimigos
+    bullets.forEach((bullet, bIndex) => {
+        enemies.forEach((enemy, eIndex) => {
+            if (
+                bullet.x < enemy.x + enemy.width &&
+                bullet.x + bullet.width > enemy.x &&
+                bullet.y < enemy.y + enemy.height &&
+                bullet.y + bullet.height > enemy.y
+            ) {
+                enemies[eIndex].exploded = true; // Marca o inimigo como explodido
+                bullets.splice(bIndex, 1);
+                score += 10;
+                enemiesDestroyed++;
+
+                // Verifica se o jogador ganhou um super tiro
+                if (enemiesDestroyed >= enemiesNeededForSuperShot) {
+                    superShotAvailable = true;
+                    enemiesDestroyed = 0; // Reseta o contador
+                }
+
+                if (score % 100 === 0) {
+                    level++;
+                    enemySpeed += 1;
+                }
+            }
+        });
+    });
+
+    // Verifica colisões entre super balas e inimigos
+    superBullets.forEach((bullet, bIndex) => {
+        enemies.forEach((enemy, eIndex) => {
+            if (
+                bullet.x < enemy.x + enemy.width &&
+                bullet.x + bullet.width > enemy.x &&
+                bullet.y < enemy.y + enemy.height &&
+                bullet.y + bullet.height > enemy.y
+            ) {
+                enemies[eIndex].exploded = true; // Marca o inimigo como explodido
+                superBullets.splice(bIndex, 1);
+                score += 20;
+            }
+        });
+    });
+
+    // Verifica colisões entre o jogador e inimigos
+    enemies.forEach((enemy) => {
+        if (
+            ship.x < enemy.x + enemy.width &&
+            ship.x + ship.width > enemy.x &&
+            ship.y < enemy.y + enemy.height &&
+            ship.y + ship.height > enemy.y
+        ) {
+            if (!collisionDetected) {
+                collisionDetected = true; // Marca que a colisão foi detectada
+                console.log('Colisão detectada!');
+                console.log(`Vida antes da colisão: ${ship.health}`);
+
+                if (ship.health > 0) {
+                    ship.health -= 20; // Diminui a vida em 20
+                    console.log(`Vida após a colisão: ${ship.health}`);
+
+                    // Verifica se a vida do jogador chegou a zero ou menos
+                    if (ship.health <= 0) {
+                        ship.exploded = true; // Marca o jogador como explodido
+                        gameOver = true;
+                        console.log('Game Over');
+                        endGame();
+                    }
+                }
+            }
+        }
+    });
+
+    // Reseta a flag de colisão para o próximo quadro
+    collisionDetected = false;
+}
+
+function updateGame() {
+    if (!gameStarted) return;
+
+    if (gameOver) {
+        endGame();
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawShip();
+    drawBullets();
+    drawSuperBullets();
+    drawEnemies();
+    drawScoreAndLevel();
+    drawHealthBar(); 
+    detectCollisions();
+
+    if (ship.movingLeft && ship.x > 0) {
+        ship.x -= ship.speed;
+        ship.angle = Math.PI;
+    }
+    if (ship.movingRight && ship.x < canvas.width - ship.width) {
+        ship.x += ship.speed;
+        ship.angle = 0;
+    }
+    if (ship.movingUp && ship.y > 0) {
+        ship.y -= ship.speed;
+        ship.angle = -Math.PI / 2;
+    }
+    if (ship.movingDown && ship.y < canvas.height - ship.height) {
+        ship.y += ship.speed;
+        ship.angle = Math.PI / 2;
+    }
+
+    requestAnimationFrame(updateGame);
+}
+
+function createEnemy() {
+    let enemyWidth = 30;
+    let enemyHeight = 30;
+    
+    let enemy = {
+        x: Math.random() * (canvas.width - enemyWidth),
+        y: -enemyHeight,
+        width: enemyWidth,
+        height: enemyHeight,
+        speed: enemySpeed,
+        imageIndex: Math.floor(Math.random() * enemyImages.length),
+        exploded: false // Novo atributo para controlar a explosão do inimigo
+    };
+    
+    enemies.push(enemy);
+}
+
+function endGame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'black';
+    ctx.font = '50px Arial';
+    ctx.fillText('Game Over', canvas.width / 2 - 150, canvas.height / 2);
+}
+
+function startGame() {
+    setInterval(createEnemy, 2000);
+    setInterval(updateGame, 1000 / 60);
+
+    document.addEventListener('keydown', (event) => {
+        if (event.code === 'ArrowLeft') ship.movingLeft = true;
+        if (event.code === 'ArrowRight') ship.movingRight = true;
+        if (event.code === 'ArrowUp') ship.movingUp = true;
+        if (event.code === 'ArrowDown') ship.movingDown = true;
+        if (event.code === 'Space') shootBullet();
+        if (event.code === 'Enter' && superShotAvailable) shootSuperBullet();
+    });
+
+    document.addEventListener('keyup', (event) => {
+        if (event.code === 'ArrowLeft') ship.movingLeft = false;
+        if (event.code === 'ArrowRight') ship.movingRight = false;
+        if (event.code === 'ArrowUp') ship.movingUp = false;
+        if (event.code === 'ArrowDown') ship.movingDown = false;
+    });
+
+    gameStarted = true;
+}
+
+function shootBullet() {
+    let bullet = {
+        x: ship.x + ship.width / 2 - 2,
+        y: ship.y,
+        width: 4,
+        height: 10,
+        speed: 5
+    };
+    bullets.push(bullet);
+}
+
+function shootSuperBullet() {
+    superShotAvailable = false; // Consome o super tiro
+    let bullet = {
+        x: ship.x + ship.width / 2 - 5,
+        y: ship.y,
+        width: 10,
+        height: 20,
+        speed: 7
+    };
+    superBullets.push(bullet);
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Shooter Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    
+    <!-- Modal de Início -->
+    <div id="startModal" class="modal">
+        <div class="modal-content">
+            <h1>Space Shooter</h1>
+            <p>Pressione "Iniciar" para começar o jogo!</p>
+            <button onclick="startGame()">Iniciar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Game Over -->
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h1>Game Over</h1>
+            <p id="finalScore"></p>
+            <button onclick="reloadGame()">Reiniciar Jogo</button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas">
+    </canvas>
+    <script src="js/script.js"></script>
+</body>
+
+</html>
