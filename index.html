@@ -10,26 +10,29 @@
 
 <body>
     
-    <!-- Modal de Início -->
-    <div id="startModal" class="modal">
-        <div class="modal-content">
-            <h1>Space Shooter</h1>
-            <p>Pressione "Iniciar" para começar o jogo!</p>
-            <button onclick="startGame()">Iniciar</button>
-        </div>
+<!-- Menu Principal -->
+<div id="mainMenu" class="menu">
+    <div class="menu-content">
+        <h1>Space Shooter Game</h1>
+        <button id="startGameButton" class="menu-button">Start Game</button>
+        <button id="viewScoreButton" class="menu-button">View Score</button>
+        <button id="exitButton" class="menu-button">Exit</button>
     </div>
-
+</div>
     <!-- Modal de Game Over -->
     <div id="gameOverModal" class="modal">
         <div class="modal-content">
-            <h1>Game Over</h1>
-            <p id="finalScore"></p>
-            <button onclick="reloadGame()">Reiniciar Jogo</button>
+            <h2>Game Over</h2>
+            <p>Sua pontuação: <span id="finalScore">0</span></p>
+            <button id="restartButton">Tentar Novamente</button>
         </div>
     </div>
-
+    
+    
     <canvas id="gameCanvas">
     </canvas>
+
+    
     <script src="js/script.js"></script>
 </body>
 

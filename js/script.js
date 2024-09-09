@@ -1,7 +1,17 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 800;
+canvas.width = 960;
 canvas.height = 600;
+
+document.getElementById('startGameButton').addEventListener('click', () => {
+    startGame();
+});
+
+
+const shootSound = new Audio('sounds/shot.mp3');
+const explosionSound = new Audio('sounds/explosion.ogg');
+const gameOverSound = new Audio('sounds/gameover.mp3');
+const superBulletSound = new Audio('sounds/supershot.mp3');
 
 
 // Carrega as imagens da nave do jogador e dos inimigos
@@ -94,24 +104,45 @@ function drawStars() {
 
 
 function drawHealthBar() {
-    const barWidth = 100;
-    const barHeight = 20;
-    const x = 10;
-    const y = canvas.height - 30;
+    const barWidth = 180;  // Largura aumentada da barra
+    const barHeight = 30;  // Altura aumentada da barra
+    const x = 20;  // Espaçamento lateral aumentado
+    const y = canvas.height - 50;  // Ajustado para mais espaço vertical
+    const borderRadius = 10;  // Raio de arredondamento das bordas
 
-    // Fundo da barra
-    ctx.fillStyle = 'gray';
+    // Desenhar o fundo da barra
+    ctx.fillStyle = '#fff';  // Cor do fundo da barra
     ctx.fillRect(x, y, barWidth, barHeight);
 
-    // Barra de vida
-    ctx.fillStyle = 'green';
-    ctx.fillRect(x, y, (ship.health / 100) * barWidth, barHeight);
+    // Desenhar a borda da barra
+    ctx.strokeStyle = '#000';  // Cor da borda
+    ctx.lineWidth = 3;  // Largura da borda
+    ctx.strokeRect(x, y, barWidth, barHeight);  // Desenha a borda externa da barra
 
-    // Texto da barra de vida
-    ctx.fillStyle = 'white';
-    ctx.font = '14px Arial';
-    ctx.fillText(`HP: ${ship.health}`, x + 2, y + 15);
+    // Desenhar a parte da vida
+    const healthWidth = (ship.health / 100) * barWidth;
+    const healthGradient = ctx.createLinearGradient(x, y, x + barWidth, y);
+    healthGradient.addColorStop(0, '#0f0');  // Cor inicial do gradiente
+    healthGradient.addColorStop(1, '#0a0');  // Cor final do gradiente
+
+    ctx.fillStyle = healthGradient;  // Define o gradiente como cor de preenchimento
+    ctx.fillRect(x, y, healthWidth, barHeight);  // Desenha a barra de vida
+
+    // Desenhar a borda da barra de vida
+    ctx.strokeStyle = '#0a0';  // Cor da borda da barra de vida
+    ctx.lineWidth = 2;  // Largura da borda da barra de vida
+    ctx.strokeRect(x, y, healthWidth, barHeight);  // Desenha a borda interna da barra de vida
+
+    // Desenhar o texto da barra de vida
+    ctx.fillStyle = '#fff';  // Cor do texto
+    ctx.font = '18px Arial';  // Fonte maior para texto
+    ctx.textAlign = 'left';  // Alinhamento do texto
+    ctx.textBaseline = 'middle';  // Base do texto
+    ctx.fillText(`HP: ${ship.health}`, x + 10, y + barHeight / 2);  // Texto da barra de vida
 }
+
+
+
 
 let bullets = [];
 let superBullets = [];
@@ -124,10 +155,7 @@ let enemySpeed = 2;
 let gameStarted = false;
 let countdown = 3;
 
-const shootSound = new Audio('sounds/shot.mp3');
-const explosionSound = new Audio('sounds/explosion.ogg');
-const gameOverSound = new Audio('sounds/gameover.mp3');
-const superBulletSound = new Audio('sounds/supershot.mp3'); // Certifique-se de ter esse arquivo
+
 
 
 explosionSound.addEventListener('canplaythrough', () => {
@@ -161,12 +189,14 @@ shipImage.onload = function () {
     enemyImages.concat(explosionImages).forEach(image => {
         image.onload = () => {
             imagesLoaded++;
-            if (imagesLoaded === enemyImages.length + explosionImages.length) {
-                startGame();
-            }
+            // if (imagesLoaded === enemyImages.length + explosionImages.length) {
+            //     startGame();
+            // }
         };
     });
 };
+
+
 
 shipImage.onerror = function () {
     console.error('Erro ao carregar a imagem da nave. Verifique o caminho da imagem.');
@@ -187,21 +217,45 @@ function drawShip() {
 }
 
 function drawBullets() {
-    ctx.fillStyle = 'red';
     bullets.forEach((bullet) => {
-        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-        bullet.y -= bullet.speed;
+        // Ajuste o tamanho da bala para ser mais longa
+        const bulletWidth = 6;  // Largura da bala
+        const bulletHeight = 20;  // Altura da bala
+
+        // Criar um gradiente linear para a bala mais alongada
+        const gradient = ctx.createLinearGradient(bullet.x, bullet.y, bullet.x, bullet.y + bulletHeight);
+        gradient.addColorStop(0, 'rgba(255, 69, 0, 1)'); // Vermelho intenso no topo
+        gradient.addColorStop(1, 'rgba(255, 0, 0, 0.8)'); // Vermelho mais escuro na parte inferior
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(bullet.x, bullet.y, bulletWidth, bulletHeight); // Desenha a bala como um retângulo mais longo
+
+        bullet.y -= bullet.speed; // Move a bala para cima
     });
-    bullets = bullets.filter(bullet => bullet.y > 0);
+
+    bullets = bullets.filter(bullet => bullet.y > 0); // Remove balas que saíram da tela
 }
 
+
+
 function drawSuperBullets() {
-    ctx.fillStyle = 'blue';
     superBullets.forEach((bullet) => {
-        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-        bullet.y -= bullet.speed;
+        // Ajustar o tamanho da bala para ser mais longa
+        const bulletWidth = 8;  // Largura da bala
+        const bulletHeight = 25;  // Altura da bala
+
+        // Criar um gradiente linear amarelo para a bala
+        const gradient = ctx.createLinearGradient(bullet.x, bullet.y, bullet.x, bullet.y + bulletHeight);
+        gradient.addColorStop(0, 'rgba(255, 255, 0, 1)'); // Amarelo intenso no topo
+        gradient.addColorStop(1, 'rgba(255, 215, 0, 0.8)'); // Amarelo mais suave na parte inferior
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(bullet.x, bullet.y, bulletWidth, bulletHeight); // Desenha a bala como um retângulo mais longo
+
+        bullet.y -= bullet.speed; // Move a bala para cima
     });
-    superBullets = superBullets.filter(bullet => bullet.y > 0);
+
+    superBullets = superBullets.filter(bullet => bullet.y > 0); // Remove balas que saíram da tela
 }
 
 function drawEnemies() {
@@ -237,11 +291,32 @@ function drawEnemies() {
 }
 
 function drawScoreAndLevel() {
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    ctx.fillText(`Score: ${score}`, 10, 30);
-    ctx.fillText(`Level: ${level}`, 10, 60);
+    // Configurações de fonte e cor de texto
+    ctx.font = '24px Arial';
+    ctx.textBaseline = 'middle';
+
+    // Pontuação no canto superior esquerdo
+    const scoreX = 20; // Ajustado para mais espaço
+    const scoreY = 30;
+    const scoreGradient = ctx.createLinearGradient(scoreX, scoreY - 15, scoreX, scoreY + 15);
+    scoreGradient.addColorStop(0, '#ffcc00');  // Cor inicial do gradiente
+    scoreGradient.addColorStop(1, '#ff9900');  // Cor final do gradiente
+    ctx.fillStyle = scoreGradient;
+    ctx.textAlign = 'left';
+    ctx.fillText(`Score: ${score}`, scoreX, scoreY);
+
+    // Nível no canto superior direito
+    const levelX = canvas.width - 20; // Ajustado para mais espaço
+    const levelY = 30;
+    const levelGradient = ctx.createLinearGradient(levelX, levelY - 15, levelX, levelY + 15);
+    levelGradient.addColorStop(0, '#00ccff');  // Cor inicial do gradiente
+    levelGradient.addColorStop(1, '#0099cc');  // Cor final do gradiente
+    ctx.fillStyle = levelGradient;
+    ctx.textAlign = 'right';
+    ctx.fillText(`Level: ${level}`, levelX, levelY);
 }
+
+
 
 function detectCollisions() {
     let collisionDetected = false;
@@ -334,48 +409,59 @@ function detectCollisions() {
 }
 
 
-function updateGame() {
+let lastFrameTime = 0;
+const fps = 60; // Frames por segundo desejados
+const frameTime = 1000 / fps; // Tempo entre frames em milissegundos
+
+function updateGame(timestamp) {
     if (!gameStarted) return;
 
-    if (gameOver) {
-        endGame();
-        return;
-    }
+    const deltaTime = timestamp - lastFrameTime;
+    if (deltaTime > frameTime) {
+        lastFrameTime = timestamp - (deltaTime % frameTime);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Atualiza e desenha as estrelas
-    updateStars();
-    drawStars();
-    
-    // Desenha os outros elementos do jogo
-    drawShip();
-    drawBullets();
-    drawSuperBullets();
-    drawEnemies();
-    drawScoreAndLevel();
-    drawHealthBar();
-    detectCollisions();
+        if (gameOver) {
+            endGame();
+            return;
+        }
 
-    if (ship.movingLeft && ship.x > 0) {
-        ship.x -= ship.speed;
-        ship.angle = Math.PI;
-    }
-    if (ship.movingRight && ship.x < canvas.width - ship.width) {
-        ship.x += ship.speed;
-        ship.angle = 0;
-    }
-    if (ship.movingUp && ship.y > 0) {
-        ship.y -= ship.speed;
-        ship.angle = -Math.PI / 2;
-    }
-    if (ship.movingDown && ship.y < canvas.height - ship.height) {
-        ship.y += ship.speed;
-        ship.angle = Math.PI / 2;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Atualiza e desenha as estrelas
+        updateStars();
+        drawStars();
+
+        // Desenha os outros elementos do jogo
+        drawShip();
+        drawBullets();
+        drawSuperBullets();
+        drawEnemies();
+        drawScoreAndLevel();
+        drawHealthBar();
+        detectCollisions();
+
+        // Movimento do jogador
+        if (ship.movingLeft && ship.x > 0) {
+            ship.x -= ship.speed;
+            ship.angle = Math.PI;
+        }
+        if (ship.movingRight && ship.x < canvas.width - ship.width) {
+            ship.x += ship.speed;
+            ship.angle = 0;
+        }
+        if (ship.movingUp && ship.y > 0) {
+            ship.y -= ship.speed;
+            ship.angle = -Math.PI / 2;
+        }
+        if (ship.movingDown && ship.y < canvas.height - ship.height) {
+            ship.y += ship.speed;
+            ship.angle = Math.PI / 2;
+        }
     }
 
     requestAnimationFrame(updateGame);
 }
+
 
 
 function createEnemy() {
@@ -437,16 +523,22 @@ function playGameOverSound() {
 }
 
 
+function showGameOverModal() {
+    const gameOverModal = document.getElementById('gameOverModal');
+    const finalScore = document.getElementById('finalScore');
+    finalScore.textContent = score; // Atualiza o texto com a pontuação final
+    gameOverModal.style.display = 'flex'; // Mostra a modal com flexbox
+    setTimeout(() => {
+        gameOverModal.style.opacity = '1';
+        gameOverModal.querySelector('.modal-content').style.transform = 'scale(1)';
+    }, 100); // Animação de entrada suave
+}
+
+
 function endGame() {
-    playGameOverSound(); // Reproduz o som de Game Over
-
-    ctx.fillStyle = 'red';
-    ctx.font = '40px Arial';
-    ctx.fillText('Game Over', canvas.width / 2 - 100, canvas.height / 2);
-
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    ctx.fillText('Pressione R para reiniciar', canvas.width / 2 - 150, canvas.height / 2 + 40);
+    gameOver = true;
+    playGameOverSound();
+    showGameOverModal();
 }
 
 
@@ -455,6 +547,12 @@ document.addEventListener('keydown', (event) => {
         location.reload(); // Reinicia o jogo
     }
 });
+// Reiniciar o jogo ao clicar no botão
+document.getElementById('restartButton').addEventListener('click', () => {
+    reloadGame();
+});
+
+
 
 
 
@@ -473,8 +571,18 @@ function countdownStart() {
     }, 1000);
 }
 
+
 function startGame() {
+    gameStarted = true;
+    // Esconde a modal
+    document.getElementById('mainMenu').classList.add('hidden');
     countdownStart();
-    setInterval(createEnemy, 1000);
+    setInterval(createEnemy, 2000);
 }
 
+
+
+
+function reloadGame() {
+    location.reload();
+}

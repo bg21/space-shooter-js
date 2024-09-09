@@ -1,48 +1,113 @@
 body {
     margin: 0;
     overflow: hidden;
-  background: radial-gradient(0, #120c56, #000000);
+    background: hsl(245, 76%, 19%);
+    
 }
 
 #gameCanvas {
     background: linear-gradient(0, #120c56, #000000);
-
     display: block;
     margin: 0 auto;
+    
 }
 
-.modal {
-    display: none;
-    position: fixed;
+
+.menu {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    align-items: center;
     color: white;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
     font-family: Arial, sans-serif;
-    z-index: 10;
 }
 
-.modal-content {
+.menu-content {
+    text-align: center;
+}
+
+.menu-button {
     background-color: #333;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #000;
-}
-
-.modal button {
-    padding: 10px 20px;
-    margin-top: 20px;
-    font-size: 16px;
     border: none;
-    border-radius: 5px;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
     cursor: pointer;
 }
 
-.modal button:hover {
+.menu-button:hover {
+    background-color: #555;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Estilo para a modal */
+.modal {
+    display: none; /* Inicialmente escondida */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fundo semitransparente */
+    z-index: 1000; /* Sempre acima dos outros elementos */
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: opacity 0.5s ease; /* Transição suave para exibir/esconder */
+}
+
+/* Estilo do conteúdo da modal */
+.modal-content {
+    background: linear-gradient(135deg, #ff6f61, #de1d1d);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #fff;
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.7);
+    transition: transform 0.3s ease; /* Animação de entrada */
+}
+
+/* Botão da modal */
+.modal-content button {
+    background-color: #fff;
+    color: #de1d1d;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover do botão */
+.modal-content button:hover {
+    background-color: #eee;
+}
+.modal-content h2 {
+    margin-top: 0;
+}
+
+#restartButton {
+    background-color: #333;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+#restartButton:hover {
     background-color: #555;
 }
