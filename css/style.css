@@ -19,35 +19,122 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.9) 40%, rgba(0, 0, 0, 0.8) 60%, rgba(0, 0, 0, 0.7) 100%),
+                url('../imgs/fundo.png') no-repeat center center fixed;
+    background-size: cover;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden; /* Garante que nada ultrapasse o menu */
+    z-index: 1;
+    animation: moveStars 60s linear infinite;
 }
 
 .menu-content {
     text-align: center;
+    position: relative;
+    z-index: 2; /* Garantir que o conteúdo esteja acima do fundo */
+}
+h1 {
+    font-size: 4em; /* Aumenta o tamanho da fonte */
+    margin-bottom: 20px; /* Reduz o espaço abaixo do título */
+    font-weight: bold; /* Adiciona negrito para destaque */
+    letter-spacing: 2px; /* Aumenta o espaçamento entre letras */
+    color: #f5c425; /* Amarelo brilhante */
+
+    /* Efeito de profundidade */
+    text-shadow: 
+        1px 1px 0 #e5a800, /* Sombra de fundo */
+        2px 2px 0 #d48f00, 
+        3px 3px 0 #bc7500, 
+        4px 4px 0 #a65c00, 
+        5px 5px 0 #8d4e00, /* Última sombra para profundidade máxima */
+        6px 6px 15px rgba(0, 0, 0, 0.7); /* Sombra geral para realce */
 }
 
+
 .menu-button {
-    background-color: #333;
+    background: linear-gradient(145deg, #333, #555); /* Gradiente moderno */
     border: none;
     color: white;
-    padding: 10px 20px;
-    margin: 10px;
+    padding: 15px 30px;
+    margin: 15px;
+    font-size: 1.2em;
     cursor: pointer;
+    border-radius: 12px; /* Bordas mais arredondadas */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6); /* Sombra mais pronunciada */
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden; /* Garante que o efeito radial não ultrapasse os limites do botão */
+    z-index: 1; /* Garante que o conteúdo do botão esteja acima do efeito radial */
+}
+
+.menu-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+    transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+}
+
+.menu-button:hover::before {
+    width: 350%;
+    height: 350%;
+    top: -10%;
+    left: -10%;
 }
 
 .menu-button:hover {
-    background-color: #555;
+    background: linear-gradient(145deg, #444, #666);
+    transform: scale(1.05);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.8); /* Sombra mais pronunciada ao passar o mouse */
+    color: #f5c425; /* Muda a cor do texto para um tom dourado */
 }
 
-.hidden {
-    display: none;
+.menu-button:active {
+    background: linear-gradient(145deg, #222, #333);
+    transform: scale(0.95);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Sombra reduzida ao clicar */
+    color: #ccc; /* Muda a cor do texto para um tom mais claro ao clicar */
 }
+
+/* Animação de movimento das estrelas */
+@keyframes moveStars {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+/* Efeito de estrelas se movendo no fundo */
+.menu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0) 60%),
+                radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 40%),
+                radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 10%);
+    background-blend-mode: overlay;
+    pointer-events: none;
+    z-index: 0;
+    animation: moveStars 60s linear infinite;
+    opacity: 0.7;
+}
+
 
 /* Estilo para a modal */
 .modal {

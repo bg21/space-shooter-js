@@ -110,28 +110,56 @@ function drawHealthBar() {
     const y = canvas.height - 50;  // Ajustado para mais espaço vertical
     const borderRadius = 10;  // Raio de arredondamento das bordas
 
-    // Desenhar o fundo da barra
-    ctx.fillStyle = '#fff';  // Cor do fundo da barra
-    ctx.fillRect(x, y, barWidth, barHeight);
+    // Desenhar o fundo da barra com bordas arredondadas
+    ctx.fillStyle = '#222623';  // Cor do fundo da barra
+    ctx.beginPath();
+    ctx.moveTo(x + borderRadius, y);
+    ctx.arcTo(x + barWidth, y, x + barWidth, y + barHeight, borderRadius);
+    ctx.arcTo(x + barWidth, y + barHeight, x, y + barHeight, borderRadius);
+    ctx.arcTo(x, y + barHeight, x, y, borderRadius);
+    ctx.arcTo(x, y, x + barWidth, y, borderRadius);
+    ctx.closePath();
+    ctx.fill();
 
-    // Desenhar a borda da barra
-    ctx.strokeStyle = '#000';  // Cor da borda
+    // Desenhar a borda da barra com bordas arredondadas
+    ctx.strokeStyle = '#ccc';  // Cor da borda
     ctx.lineWidth = 3;  // Largura da borda
-    ctx.strokeRect(x, y, barWidth, barHeight);  // Desenha a borda externa da barra
+    ctx.beginPath();
+    ctx.moveTo(x + borderRadius, y);
+    ctx.arcTo(x + barWidth, y, x + barWidth, y + barHeight, borderRadius);
+    ctx.arcTo(x + barWidth, y + barHeight, x, y + barHeight, borderRadius);
+    ctx.arcTo(x, y + barHeight, x, y, borderRadius);
+    ctx.arcTo(x, y, x + barWidth, y, borderRadius);
+    ctx.closePath();
+    ctx.stroke();
 
-    // Desenhar a parte da vida
+    // Desenhar a parte da vida com bordas arredondadas
     const healthWidth = (ship.health / 100) * barWidth;
-    const healthGradient = ctx.createLinearGradient(x, y, x + barWidth, y);
-    healthGradient.addColorStop(0, '#0f0');  // Cor inicial do gradiente
+    const healthGradient = ctx.createLinearGradient(x, y, x + healthWidth, y);
+    healthGradient.addColorStop(0, '#21cf4c');  // Cor inicial do gradiente
     healthGradient.addColorStop(1, '#0a0');  // Cor final do gradiente
 
     ctx.fillStyle = healthGradient;  // Define o gradiente como cor de preenchimento
-    ctx.fillRect(x, y, healthWidth, barHeight);  // Desenha a barra de vida
+    ctx.beginPath();
+    ctx.moveTo(x + borderRadius, y);
+    ctx.arcTo(x + healthWidth, y, x + healthWidth, y + barHeight, borderRadius);
+    ctx.arcTo(x + healthWidth, y + barHeight, x, y + barHeight, borderRadius);
+    ctx.arcTo(x, y + barHeight, x, y, borderRadius);
+    ctx.arcTo(x, y, x + healthWidth, y, borderRadius);
+    ctx.closePath();
+    ctx.fill();
 
-    // Desenhar a borda da barra de vida
-    ctx.strokeStyle = '#0a0';  // Cor da borda da barra de vida
+    // Desenhar a borda da barra de vida com bordas arredondadas
+    ctx.strokeStyle = '#ccc';  // Cor da borda da barra de vida
     ctx.lineWidth = 2;  // Largura da borda da barra de vida
-    ctx.strokeRect(x, y, healthWidth, barHeight);  // Desenha a borda interna da barra de vida
+    ctx.beginPath();
+    ctx.moveTo(x + borderRadius, y);
+    ctx.arcTo(x + healthWidth, y, x + healthWidth, y + barHeight, borderRadius);
+    ctx.arcTo(x + healthWidth, y + barHeight, x, y + barHeight, borderRadius);
+    ctx.arcTo(x, y + barHeight, x, y, borderRadius);
+    ctx.arcTo(x, y, x + healthWidth, y, borderRadius);
+    ctx.closePath();
+    ctx.stroke();
 
     // Desenhar o texto da barra de vida
     ctx.fillStyle = '#fff';  // Cor do texto
@@ -143,9 +171,18 @@ function drawHealthBar() {
 
 
 
+const MAX_SUPER_BULLETS = 3;
+
+function gainSuperBullet() {
+    if (availableSuperBullets < MAX_SUPER_BULLETS) {
+        availableSuperBullets++;
+    }
+}
 
 let bullets = [];
 let superBullets = [];
+let availableSuperBullets = 0; // O jogador começa com 0 superbullets
+
 let enemies = [];
 let explosions = [];
 let score = 0;
@@ -334,15 +371,15 @@ function detectCollisions() {
                 enemies.splice(eIndex, 1);
                 bullets.splice(bIndex, 1);
                 score += 10;
-                enemiesDestroyed++;
+                enemiesDestroyed++; // Incrementa o contador de inimigos derrotados
 
                 // Toca o som de explosão apenas quando o inimigo é destruído por uma bala
                 playExplosionSound();
 
                 // Verifica se o jogador ganhou um super tiro
                 if (enemiesDestroyed >= enemiesNeededForSuperShot) {
-                    superShotAvailable = true;
-                    enemiesDestroyed = 0;
+                    gainSuperBullet(); // Adiciona uma superbullet
+                    enemiesDestroyed = 0; // Reseta o contador de inimigos derrotados
                 }
 
                 if (score % 100 === 0) {
@@ -409,6 +446,64 @@ function detectCollisions() {
 }
 
 
+
+
+function drawSuperBulletCount() {
+    const barWidth = 150;
+    const barHeight = 30; // Aumentado para uma altura maior
+    const barX = canvas.width - 170; // Posição horizontal da barra
+    const barY = canvas.height - 50; // Posição vertical da barra, ajustada para acomodar a nova altura
+    const bulletCount = Math.min(availableSuperBullets, 3); // Garante que não exceda 3 superbullets
+    const cornerRadius = 10; // Raio das bordas arredondadas
+
+    // Desenha o fundo da barra com bordas arredondadas
+    ctx.fillStyle = '#222623'; // Cor de fundo
+    ctx.beginPath();
+    ctx.moveTo(barX + cornerRadius, barY);
+    ctx.arcTo(barX + barWidth, barY, barX + barWidth, barY + barHeight, cornerRadius);
+    ctx.arcTo(barX + barWidth, barY + barHeight, barX, barY + barHeight, cornerRadius);
+    ctx.arcTo(barX, barY + barHeight, barX, barY, cornerRadius);
+    ctx.arcTo(barX, barY, barX + barWidth, barY, cornerRadius);
+    ctx.closePath();
+    ctx.fill();
+
+    // Desenha a barra de superbullets com bordas arredondadas
+    const filledWidth = (barWidth / 3) * bulletCount; // Calcula a largura preenchida com base no número de superbullets
+    const gradient = ctx.createLinearGradient(barX, barY, barX + filledWidth, barY + barHeight);
+    gradient.addColorStop(0, '#f5c425'); // Cor inicial do gradiente
+    gradient.addColorStop(1, '#f7d463'); // Cor final do gradiente
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.moveTo(barX + cornerRadius, barY);
+    ctx.arcTo(barX + filledWidth, barY, barX + filledWidth, barY + barHeight, cornerRadius);
+    ctx.arcTo(barX + filledWidth, barY + barHeight, barX, barY + barHeight, cornerRadius);
+    ctx.arcTo(barX, barY + barHeight, barX, barY, cornerRadius);
+    ctx.arcTo(barX, barY, barX + filledWidth, barY, cornerRadius);
+    ctx.closePath();
+    ctx.fill();
+
+    // Adiciona contorno à barra com bordas arredondadas
+    ctx.strokeStyle = '#ccc'; // Cor do contorno
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(barX + cornerRadius, barY);
+    ctx.arcTo(barX + barWidth, barY, barX + barWidth, barY + barHeight, cornerRadius);
+    ctx.arcTo(barX + barWidth, barY + barHeight, barX, barY + barHeight, cornerRadius);
+    ctx.arcTo(barX, barY + barHeight, barX, barY, cornerRadius);
+    ctx.arcTo(barX, barY, barX + barWidth, barY, cornerRadius);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Adiciona o texto indicando o número de superbullets
+    ctx.font = '18px Arial'; // Aumentado para melhor visibilidade
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff'; // Cor do texto
+    ctx.fillText(`${availableSuperBullets}`, barX + barWidth / 2, barY + barHeight / 2);
+}
+
+
 let lastFrameTime = 0;
 const fps = 60; // Frames por segundo desejados
 const frameTime = 1000 / fps; // Tempo entre frames em milissegundos
@@ -430,7 +525,7 @@ function updateGame(timestamp) {
         // Atualiza e desenha as estrelas
         updateStars();
         drawStars();
-
+        
         // Desenha os outros elementos do jogo
         drawShip();
         drawBullets();
@@ -438,6 +533,8 @@ function updateGame(timestamp) {
         drawEnemies();
         drawScoreAndLevel();
         drawHealthBar();
+        drawSuperBulletCount(); // Adiciona esta linha
+
         detectCollisions();
 
         // Movimento do jogador
@@ -497,18 +594,24 @@ document.addEventListener('keydown', (event) => {
         });
         playShootSound(); // Chama o som do tiro normal
     }
-    if (event.key === 's' && superShotAvailable) {
-        superBullets.push({
-            x: ship.x + ship.width / 2 - 5,
-            y: ship.y,
-            width: 10,
-            height: 20,
-            speed: 7
-        });
-        playSuperBulletSound(); // Chama o som do super tiro
-        superShotAvailable = false;
+    if (event.key === 's') {
+        if (availableSuperBullets > 0) { // Verifica se há superbullets disponíveis
+            superBullets.push({
+                x: ship.x + ship.width / 2 - 5,
+                y: ship.y,
+                width: 10,
+                height: 20,
+                speed: 10 // Velocidade das superbullets
+            });
+            playSuperBulletSound(); // Chama o som do super tiro
+            availableSuperBullets--; // Decrementa a quantidade de superbullets disponíveis
+        } else {
+            console.log("Sem superbullets disponíveis!"); // Mensagem para debug
+        }
     }
 });
+
+
 
 
 document.addEventListener('keyup', (event) => {
