@@ -2,8 +2,10 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 960;
 canvas.height = 600;
+const backgroundMusic = document.getElementById('backgroundMusic');
 
 document.getElementById('startGameButton').addEventListener('click', () => {
+    backgroundMusic.play(); // Tocar música de fundo
     startGame();
 });
 
@@ -640,6 +642,8 @@ function showGameOverModal() {
 
 function endGame() {
     gameOver = true;
+    backgroundMusic.pause(); // Pausar a música de fundo
+    backgroundMusic.currentTime = 0; // Reiniciar a música para o início
     playGameOverSound();
     showGameOverModal();
 }
@@ -663,7 +667,7 @@ function countdownStart() {
     let interval = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'white';
-        ctx.font = '60px Arial';
+        ctx.font = '90px Arial';
         ctx.fillText(countdown, canvas.width / 2, canvas.height / 2);
         countdown--;
         if (countdown < 0) {

@@ -1,45 +1,22 @@
-body {
+html, body {
     margin: 0;
-    overflow: hidden;
-    background: hsl(245, 76%, 19%);
-    
-}
-
-#gameCanvas {
-    background: linear-gradient(0, #120c56, #000000);
-    display: block;
-    margin: 0 auto;
-    
-}
-
-
-.menu {
-    position: absolute;
-    top: 0;
-    left: 0;
+    padding: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.9) 40%, rgba(0, 0, 0, 0.8) 60%, rgba(0, 0, 0, 0.7) 100%),
-                url('../imgs/fundo.png') no-repeat center center fixed;
-    background-size: cover;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    font-family: 'Arial', sans-serif;
-    overflow: hidden; /* Garante que nada ultrapasse o menu */
-    z-index: 1;
-    animation: moveStars 60s linear infinite;
+    overflow: hidden; /* Impede a rolagem */
+    background: linear-gradient(0, #03011b, #000000);
 }
 
-.menu-content {
-    text-align: center;
-    position: relative;
-    z-index: 2; /* Garantir que o conteúdo esteja acima do fundo */
+
+#gameCanvas {
+    background: linear-gradient(0, #03011b, #000000);
+    display: block;
+    margin: 0 auto;
+    padding: 0;
+    height: 100vh;
 }
 h1 {
-    font-size: 4em; /* Aumenta o tamanho da fonte */
+    font-size: 4.5em; /* Aumenta o tamanho da fonte */
     margin-bottom: 20px; /* Reduz o espaço abaixo do título */
     font-weight: bold; /* Adiciona negrito para destaque */
     letter-spacing: 2px; /* Aumenta o espaçamento entre letras */
@@ -53,88 +30,77 @@ h1 {
         4px 4px 0 #a65c00, 
         5px 5px 0 #8d4e00, /* Última sombra para profundidade máxima */
         6px 6px 15px rgba(0, 0, 0, 0.7); /* Sombra geral para realce */
+    
+    /* Animação de pulsação */
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 
+
+
+.menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0, #05022b, #000000);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+}
+
+.menu-content {
+    text-align: center;
+}
+
 .menu-button {
-    background: linear-gradient(145deg, #333, #555); /* Gradiente moderno */
+    background: linear-gradient(145deg, #f5c425, #d4a900); /* Gradiente amarelo */
     border: none;
     color: white;
     padding: 15px 30px;
     margin: 15px;
     font-size: 1.2em;
     cursor: pointer;
-    border-radius: 12px; /* Bordas mais arredondadas */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6); /* Sombra mais pronunciada */
-    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-    position: relative;
-    overflow: hidden; /* Garante que o efeito radial não ultrapasse os limites do botão */
-    z-index: 1; /* Garante que o conteúdo do botão esteja acima do efeito radial */
-}
-
-.menu-button::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300%;
-    height: 300%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
-    transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    z-index: -1;
-}
-
-.menu-button:hover::before {
-    width: 350%;
-    height: 350%;
-    top: -10%;
-    left: -10%;
+    border-radius: 15px; /* Bordas mais arredondadas */
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3), inset 1px 1px 5px rgba(255, 255, 255, 0.2); /* Sombra interna e externa */
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s; /* Suave transição para cor e sombra */
+    text-transform: uppercase; /* Letras maiúsculas para um estilo mais marcante */
+    font-family: 'Roboto', sans-serif; /* Fonte moderna */
 }
 
 .menu-button:hover {
-    background: linear-gradient(145deg, #444, #666);
-    transform: scale(1.05);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.8); /* Sombra mais pronunciada ao passar o mouse */
-    color: #f5c425; /* Muda a cor do texto para um tom dourado */
+    background: linear-gradient(145deg, #d4a900, #f5c425); /* Gradiente amarelo escuro no hover */
+    transform: scale(1.05); /* Leve aumento ao passar o mouse */
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.4), inset 2px 2px 7px rgba(255, 255, 255, 0.3); /* Sombra interna e externa mais proeminente */
 }
 
 .menu-button:active {
-    background: linear-gradient(145deg, #222, #333);
-    transform: scale(0.95);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Sombra reduzida ao clicar */
-    color: #ccc; /* Muda a cor do texto para um tom mais claro ao clicar */
+    background: linear-gradient(145deg, #f5c425, #d4a900); /* Gradiente ainda mais escuro ao clicar */
+    transform: scale(0.95); /* Leve diminuição ao clicar */
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 255, 0.1); /* Sombra interna e externa reduzida */
 }
 
-/* Animação de movimento das estrelas */
-@keyframes moveStars {
-    0% {
-        background-position: 0 0;
-    }
-    100% {
-        background-position: 100% 100%;
-    }
+.menu-button:focus {
+    outline: none; /* Remove o contorno padrão ao focar no botão */
 }
 
-/* Efeito de estrelas se movendo no fundo */
-.menu::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0) 60%),
-                radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 40%),
-                radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 10%);
-    background-blend-mode: overlay;
-    pointer-events: none;
-    z-index: 0;
-    animation: moveStars 60s linear infinite;
-    opacity: 0.7;
-}
 
+.hidden {
+    display: none;
+}
 
 /* Estilo para a modal */
 .modal {
